@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
-import RecipeHeader from "./RecipeHeader";
 import RecipeGrid from "./RecipeGrid";
 import RecipeDialog from "./RecipeDialog";
-import { AuthDialog } from "./auth/AuthDialog";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { Button } from "./ui/button";
-import { LogOut } from "lucide-react";
 import { toast } from "./ui/use-toast";
 
 interface Recipe {
@@ -21,48 +17,72 @@ interface Recipe {
   notes?: string;
 }
 
-const defaultRecipes: Recipe[] = [
-  {
-    id: "1",
-    title: "Homemade Pizza Margherita",
-    imageUrl: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3",
-    rating: 5,
-    cookCount: 12,
-    tags: ["Italian", "Comfort Food"],
-    description: "Classic Italian pizza with fresh mozzarella and basil",
-  },
-  {
-    id: "2",
-    title: "Fresh Summer Salad",
-    imageUrl: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
-    rating: 4,
-    cookCount: 8,
-    tags: ["Healthy", "Quick Meals", "Vegetarian"],
-    description: "Light and refreshing salad perfect for summer days",
-  },
-  {
-    id: "3",
-    title: "Chocolate Chip Cookies",
-    imageUrl: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e",
-    rating: 5,
-    cookCount: 15,
-    tags: ["Desserts", "Baking"],
-    description: "Classic homemade chocolate chip cookies",
-  },
-];
-
 const Home = () => {
-  const { user, signOut } = useAuth();
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+  const { user } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
 
+  // Load recipes when user changes
   useEffect(() => {
     if (user) {
       loadRecipes();
     } else {
       setRecipes([]);
+      setFilteredRecipes([]);
     }
   }, [user]);
+
+  // Set up event listeners
+  useEffect(() => {
+    const handleSearch = (e: Event) => {
+      const customEvent = e as CustomEvent<{ term: string }>;
+      const searchTerm = customEvent.detail.term;
+      let filtered = [...recipes];
+
+      if (searchTerm) {
+        filtered = filtered.filter((recipe) =>
+          recipe.title.toLowerCase().includes(searchTerm.toLowerCase()),
+        );
+      } else {
+        filtered = recipes;
+      }
+
+      setFilteredRecipes(filtered);
+    };
+
+    const handleFilter = (e: Event) => {
+      const customEvent = e as CustomEvent<{ filter: string }>;
+      const filter = customEvent.detail.filter;
+      let filtered = [...recipes];
+
+      if (filter) {
+        filtered = filtered.filter((recipe) => recipe.tags.includes(filter));
+      } else {
+        filtered = recipes;
+      }
+
+      setFilteredRecipes(filtered);
+    };
+
+    const handleAddRecipe = () => {
+      setDialogMode("add");
+      setSelectedRecipe(null);
+      setIsDialogOpen(true);
+    };
+
+    document.addEventListener("recipeSearch", handleSearch);
+    document.addEventListener("recipeFilter", handleFilter);
+    document.addEventListener("addRecipe", handleAddRecipe);
+
+    return () => {
+      document.removeEventListener("recipeSearch", handleSearch);
+      document.removeEventListener("recipeFilter", handleFilter);
+      document.removeEventListener("addRecipe", handleAddRecipe);
+    };
+  }, [recipes]);
 
   const loadRecipes = async () => {
     try {
@@ -72,13 +92,15 @@ const Home = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      // Convert snake_case to camelCase
+
       const formattedData = (data || []).map((recipe) => ({
         ...recipe,
         imageUrl: recipe.image_url,
         cookCount: recipe.cook_count,
       }));
+
       setRecipes(formattedData);
+      setFilteredRecipes(formattedData);
     } catch (error) {
       console.error("Error loading recipes:", error);
       toast({
@@ -88,21 +110,6 @@ const Home = () => {
       });
     }
   };
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
-  const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState<string>("");
-
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-  };
-
-  const handleAddRecipe = () => {
-    setDialogMode("add");
-    setSelectedRecipe(null);
-    setIsDialogOpen(true);
-  };
 
   const handleRecipeClick = (recipe: Recipe) => {
     setDialogMode("edit");
@@ -110,18 +117,8 @@ const Home = () => {
     setIsDialogOpen(true);
   };
 
-  const handleFilterSelect = (filter: string) => {
-    setSelectedFilter(filter);
-  };
-
   const handleSaveRecipe = async (recipeData: any) => {
-    if (!user) {
-      setIsAuthDialogOpen(true);
-      return;
-    }
-
     try {
-      // Convert camelCase to snake_case for database
       const dbData = {
         title: recipeData.title,
         url: recipeData.url,
@@ -138,7 +135,7 @@ const Home = () => {
           .insert([
             {
               ...dbData,
-              user_id: user.id,
+              user_id: user?.id,
               cook_count: 0,
             },
           ])
@@ -146,28 +143,31 @@ const Home = () => {
           .single();
 
         if (error) throw error;
-        // Convert snake_case back to camelCase for frontend
+
         const newRecipe = {
           ...data,
           imageUrl: data.image_url,
           cookCount: data.cook_count,
         };
         setRecipes([newRecipe, ...recipes]);
-      } else {
+        setFilteredRecipes([newRecipe, ...filteredRecipes]);
+      } else if (selectedRecipe) {
         const { error } = await supabase
           .from("recipes")
           .update(dbData)
-          .eq("id", selectedRecipe?.id);
+          .eq("id", selectedRecipe.id);
 
         if (error) throw error;
-        setRecipes(
-          recipes.map((recipe) =>
-            recipe.id === selectedRecipe?.id
-              ? { ...recipe, ...recipeData }
-              : recipe,
-          ),
+
+        const updatedRecipes = recipes.map((recipe) =>
+          recipe.id === selectedRecipe.id
+            ? { ...recipe, ...recipeData }
+            : recipe,
         );
+        setRecipes(updatedRecipes);
+        setFilteredRecipes(updatedRecipes);
       }
+
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Error saving recipe:", error);
@@ -178,16 +178,6 @@ const Home = () => {
       });
     }
   };
-
-  const filteredRecipes = recipes.filter((recipe) => {
-    const matchesSearch = recipe.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesFilter = selectedFilter
-      ? recipe.tags.includes(selectedFilter)
-      : true;
-    return matchesSearch && matchesFilter;
-  });
 
   return (
     <div>
@@ -207,7 +197,6 @@ const Home = () => {
         }}
         onSave={handleSaveRecipe}
       />
-      <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
     </div>
   );
 };
