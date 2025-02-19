@@ -190,17 +190,7 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <RecipeHeader
-        onSearch={handleSearch}
-        onAddRecipe={handleAddRecipe}
-        onFilterSelect={handleFilterSelect}
-        availableTags={Array.from(
-          new Set(recipes.flatMap((recipe) => recipe.tags)),
-        )}
-        onAuthClick={() => (user ? signOut() : setIsAuthDialogOpen(true))}
-        isAuthenticated={!!user}
-      />
+    <div>
       <RecipeGrid recipes={filteredRecipes} onRecipeClick={handleRecipeClick} />
       <RecipeDialog
         open={isDialogOpen}

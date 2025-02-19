@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import RecipeCard from "./RecipeCard";
 import { motion } from "framer-motion";
 
@@ -47,6 +48,7 @@ const RecipeGrid = ({
   recipes = defaultRecipes,
   onRecipeClick = () => {},
 }: RecipeGridProps) => {
+  const navigate = useNavigate();
   return (
     <div className="w-full min-h-screen bg-gray-50 p-6">
       <motion.div
@@ -69,7 +71,7 @@ const RecipeGrid = ({
               rating={recipe.rating}
               cookCount={recipe.cookCount}
               tags={recipe.tags}
-              onClick={() => onRecipeClick(recipe)}
+              onClick={() => navigate(`/recipe/${recipe.id}`)}
             />
           </motion.div>
         ))}
