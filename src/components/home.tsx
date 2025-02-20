@@ -87,16 +87,43 @@ const Home = () => {
   const loadRecipes = async () => {
     try {
       const { data, error } = await supabase
-        .from("recipes")
-        .select("*")
+        .from("user_recipes")
+        .select(
+          `
+          id,
+          rating,
+          cook_count,
+          last_cooked,
+          notes,
+          tags,
+          created_at,
+          recipe:recipe_library(
+            id,
+            url,
+            title,
+            image_url,
+            description,
+            source
+          )
+        `,
+        )
         .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      const formattedData = (data || []).map((recipe) => ({
-        ...recipe,
-        imageUrl: recipe.image_url,
-        cookCount: recipe.cook_count,
+      const formattedData = (data || []).map((item) => ({
+        id: item.recipe.id,
+        title: item.recipe.title,
+        url: item.recipe.url,
+        imageUrl: item.recipe.image_url,
+        description: item.recipe.description,
+        source: item.recipe.source,
+        rating: item.rating,
+        cookCount: item.cook_count,
+        lastCooked: item.last_cooked,
+        notes: item.notes,
+        tags: item.tags || [],
+        userRecipeId: item.id,
       }));
 
       setRecipes(formattedData);
@@ -119,45 +146,118 @@ const Home = () => {
 
   const handleSaveRecipe = async (recipeData: any) => {
     try {
-      const dbData = {
-        title: recipeData.title,
-        url: recipeData.url,
-        image_url: recipeData.imageUrl,
-        description: recipeData.description,
-        rating: recipeData.rating,
-        notes: recipeData.notes,
-        tags: recipeData.tags,
-      };
-
       if (dialogMode === "add") {
-        const { data, error } = await supabase
-          .from("recipes")
+        // First, check if the recipe URL already exists in the library
+        let recipeId;
+        if (recipeData.url) {
+          const { data: existingRecipe } = await supabase
+            .from("recipe_library")
+            .select("id")
+            .eq("url", recipeData.url)
+            .single();
+
+          if (existingRecipe) {
+            recipeId = existingRecipe.id;
+          }
+        }
+
+        // If no existing recipe, create a new one in the library
+        if (!recipeId) {
+          const { data: newLibraryRecipe, error: libraryError } = await supabase
+            .from("recipe_library")
+            .insert([
+              {
+                title: recipeData.title,
+                url: recipeData.url,
+                image_url: recipeData.imageUrl,
+                description: recipeData.description,
+                source: recipeData.url
+                  ? new URL(recipeData.url).hostname.replace("www.", "")
+                  : null,
+                first_submitted_by: user?.id,
+              },
+            ])
+            .select()
+            .single();
+
+          if (libraryError) throw libraryError;
+          recipeId = newLibraryRecipe.id;
+        }
+
+        // Create user-specific recipe entry
+        const { data: userRecipe, error: userRecipeError } = await supabase
+          .from("user_recipes")
           .insert([
             {
-              ...dbData,
               user_id: user?.id,
+              recipe_id: recipeId,
+              rating: recipeData.rating,
+              notes: recipeData.notes,
+              tags: recipeData.tags,
               cook_count: 0,
             },
           ])
           .select()
           .single();
 
-        if (error) throw error;
+        if (userRecipeError) throw userRecipeError;
+
+        // Fetch the complete recipe data to add to the UI
+        const { data: completeRecipe, error: fetchError } = await supabase
+          .from("user_recipes")
+          .select(
+            `
+            id,
+            rating,
+            cook_count,
+            last_cooked,
+            notes,
+            tags,
+            created_at,
+            recipe:recipe_library(
+              id,
+              url,
+              title,
+              image_url,
+              description,
+              source
+            )
+          `,
+          )
+          .eq("id", userRecipe.id)
+          .single();
+
+        if (fetchError) throw fetchError;
 
         const newRecipe = {
-          ...data,
-          imageUrl: data.image_url,
-          cookCount: data.cook_count,
+          id: completeRecipe.recipe.id,
+          title: completeRecipe.recipe.title,
+          url: completeRecipe.recipe.url,
+          imageUrl: completeRecipe.recipe.image_url,
+          description: completeRecipe.recipe.description,
+          source: completeRecipe.recipe.source,
+          rating: completeRecipe.rating,
+          cookCount: completeRecipe.cook_count,
+          lastCooked: completeRecipe.last_cooked,
+          notes: completeRecipe.notes,
+          tags: completeRecipe.tags || [],
+          userRecipeId: completeRecipe.id,
         };
+
         setRecipes([newRecipe, ...recipes]);
         setFilteredRecipes([newRecipe, ...filteredRecipes]);
       } else if (selectedRecipe) {
-        const { error } = await supabase
-          .from("recipes")
-          .update(dbData)
-          .eq("id", selectedRecipe.id);
+        // Update only user-specific data
+        const { error: updateError } = await supabase
+          .from("user_recipes")
+          .update({
+            rating: recipeData.rating,
+            notes: recipeData.notes,
+            tags: recipeData.tags,
+          })
+          .eq("id", selectedRecipe.userRecipeId);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
 
         const updatedRecipes = recipes.map((recipe) =>
           recipe.id === selectedRecipe.id
