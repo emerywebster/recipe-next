@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Plus, Search, Filter, BookMarked } from "lucide-react";
+import { Plus, Search, Filter, BookMarked, User } from "lucide-react";
 import { UserAvatar } from "./UserAvatar";
 import { Link } from "react-router-dom";
 
@@ -38,7 +38,9 @@ const RecipeHeader = ({
     <header className="w-full h-20 bg-white border-b border-gray-200 px-6 flex items-center justify-between sticky top-0 z-10">
       <Link to="/" className="flex items-center gap-2 mr-8">
         <BookMarked className="h-6 w-6 text-primary" />
-        <span className="text-xl font-semibold">Cookmarks</span>
+        <span className="text-xl font-semibold hidden sm:inline">
+          Cookmarks
+        </span>
       </Link>
 
       <div className="flex items-center flex-1 max-w-2xl">
@@ -52,33 +54,40 @@ const RecipeHeader = ({
           />
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-4">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {availableTags.map((tag) => (
-              <DropdownMenuItem key={tag} onClick={() => onFilterSelect(tag)}>
-                {tag}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="hidden sm:block">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-4">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {availableTags.map((tag) => (
+                <DropdownMenuItem key={tag} onClick={() => onFilterSelect(tag)}>
+                  {tag}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
-        <Button onClick={onAddRecipe}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Recipe
+        <Button onClick={onAddRecipe} className="text-xs sm:text-sm py-2">
+          <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+          Add recipe
         </Button>
         {isAuthenticated ? (
           <UserAvatar />
         ) : (
-          <Button variant="ghost" onClick={onAuthClick}>
-            Sign in
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onAuthClick}
+            className="rounded-full h-8 w-8 bg-secondary hover:bg-secondary/80"
+          >
+            <User className="h-4 w-4" />
           </Button>
         )}
       </div>
