@@ -47,7 +47,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-white rounded-lg">
+      <DialogContent className="max-w-[425px] bg-white rounded-lg">
         <DialogHeader>
           <DialogTitle>{isSignUp ? 'Create account' : 'Sign in'}</DialogTitle>
         </DialogHeader>
