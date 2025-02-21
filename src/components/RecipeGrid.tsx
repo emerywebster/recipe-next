@@ -1,7 +1,7 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import RecipeCard from './RecipeCard';
-import { motion } from 'framer-motion';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import RecipeCard from "./RecipeCard";
+import { motion } from "framer-motion";
 
 interface Recipe {
   id: string;
@@ -19,35 +19,38 @@ interface RecipeGridProps {
 
 const defaultRecipes: Recipe[] = [
   {
-    id: '1',
-    title: 'Homemade Pizza Margherita',
-    imageUrl: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3',
+    id: "1",
+    title: "Homemade Pizza Margherita",
+    imageUrl: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3",
     rating: 5,
     cookCount: 12,
-    tags: ['Italian', 'Comfort Food'],
+    tags: ["Italian", "Comfort Food"],
   },
   {
-    id: '2',
-    title: 'Fresh Summer Salad',
-    imageUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
+    id: "2",
+    title: "Fresh Summer Salad",
+    imageUrl: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe",
     rating: 4,
     cookCount: 8,
-    tags: ['Healthy', 'Quick Meals', 'Vegetarian'],
+    tags: ["Healthy", "Quick Meals", "Vegetarian"],
   },
   {
-    id: '3',
-    title: 'Chocolate Chip Cookies',
-    imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e',
+    id: "3",
+    title: "Chocolate Chip Cookies",
+    imageUrl: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e",
     rating: 5,
     cookCount: 15,
-    tags: ['Desserts', 'Baking'],
+    tags: ["Desserts", "Baking"],
   },
 ];
 
-const RecipeGrid = ({ recipes = defaultRecipes, onRecipeClick = () => {} }: RecipeGridProps) => {
+const RecipeGrid = ({
+  recipes = defaultRecipes,
+  onRecipeClick = () => {},
+}: RecipeGridProps) => {
   const navigate = useNavigate();
   return (
-    <div className="w-full min-h-screen bg-gray-50 p-6">
+    <div className="w-full min-h-screen p-6">
       <div className="max-w-[2520px] mx-auto xl:pl-20 xl:pr-20">
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 md:gap-x-6 md:gap-y-10"
