@@ -1,18 +1,18 @@
-import { Suspense } from "react";
-import { useRoutes, Routes, Route, Navigate } from "react-router-dom";
-import Home from "./components/home";
-import RecipeDetail from "./components/RecipeDetail";
-import Profile from "./components/pages/Profile";
-import AppLayout from "./components/layout/AppLayout";
-import routes from "tempo-routes";
-import { AuthProvider, useAuth } from "./lib/auth";
-import { Toaster } from "./components/ui/toaster";
+import { Suspense } from 'react';
+import { useRoutes, Routes, Route, Navigate } from 'react-router-dom';
+import Home from './components/home';
+import RecipeDetail from './components/RecipeDetail';
+import Profile from './components/pages/Profile';
+import AppLayout from './components/layout/AppLayout';
+import routes from 'tempo-routes';
+import { AuthProvider, useAuth } from './lib/auth';
+import { Toaster } from './components/ui/toaster';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{/* Add loading spinner if needed */}</div>;
   }
 
   if (!user) {
@@ -24,7 +24,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>{/* Add loading spinner if needed */}</div>}>
       <AppLayout>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -38,7 +38,7 @@ function AppRoutes() {
             }
           />
         </Routes>
-        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+        {import.meta.env.VITE_TEMPO === 'true' && useRoutes(routes)}
       </AppLayout>
     </Suspense>
   );
