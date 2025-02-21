@@ -1,12 +1,7 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button } from './ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,20 +11,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "./ui/alert-dialog";
-import { toast } from "./ui/use-toast";
-import { Badge } from "./ui/badge";
-import {
-  ArrowLeft,
-  Edit,
-  ExternalLink,
-  MoreVertical,
-  Star,
-  Trash2,
-} from "lucide-react";
-import { format } from "date-fns";
-import { useAuth } from "@/lib/auth";
-import { supabase } from "@/lib/supabase";
+} from './ui/alert-dialog';
+import { toast } from './ui/use-toast';
+import { Badge } from './ui/badge';
+import { ArrowLeft, Edit, ExternalLink, MoreVertical, Star, Trash2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { useAuth } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 
 interface Recipe {
   id: string;
@@ -55,26 +43,22 @@ export default function RecipeDetail() {
   const handleDelete = async () => {
     try {
       // Only delete the user's connection to the recipe
-      const { error } = await supabase
-        .from("user_recipes")
-        .delete()
-        .eq("recipe_id", id)
-        .eq("user_id", user?.id);
+      const { error } = await supabase.from('user_recipes').delete().eq('recipe_id', id).eq('user_id', user?.id);
 
       if (error) throw error;
 
       toast({
-        title: "Recipe removed",
-        description: "The recipe has been removed from your collection",
+        title: 'Recipe removed',
+        description: 'The recipe has been removed from your collection',
       });
 
-      navigate("/");
+      navigate('/');
     } catch (error) {
-      console.error("Error removing recipe:", error);
+      console.error('Error removing recipe:', error);
       toast({
-        title: "Error",
-        description: "Failed to remove recipe",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to remove recipe',
+        variant: 'destructive',
       });
     }
   };
@@ -84,7 +68,7 @@ export default function RecipeDetail() {
       if (!id || !user) return;
 
       const { data, error } = await supabase
-        .from("user_recipes")
+        .from('user_recipes')
         .select(
           `
 					id,
@@ -101,14 +85,14 @@ export default function RecipeDetail() {
 						description,
 						source
 					)
-				`,
+				`
         )
-        .eq("recipe_id", id)
-        .eq("user_id", user.id)
+        .eq('recipe_id', id)
+        .eq('user_id', user.id)
         .single();
 
       if (error) {
-        console.error("Error fetching recipe:", error);
+        console.error('Error fetching recipe:', error);
         return;
       }
 
@@ -131,18 +115,14 @@ export default function RecipeDetail() {
   }, [id, user]);
 
   if (!recipe) {
-    return <div>Loading...</div>;
+    return <div>{/* Add loading spinner if needed */}</div>;
   }
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       {/* Navigation */}
       <div className="flex items-center justify-between mb-8">
-        <Button
-          variant="ghost"
-          className="flex items-center"
-          onClick={() => navigate("/")}
-        >
+        <Button variant="ghost" className="flex items-center" onClick={() => navigate('/')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Recipes
         </Button>
@@ -157,10 +137,7 @@ export default function RecipeDetail() {
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setShowDeleteDialog(true)}
-              className="text-red-600"
-            >
+            <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-red-600">
               <Trash2 className="h-4 w-4 mr-2" />
               Remove
             </DropdownMenuItem>
@@ -170,11 +147,7 @@ export default function RecipeDetail() {
 
       {/* Hero Image */}
       <div className="relative w-full h-[400px] rounded-lg overflow-hidden mb-8">
-        <img
-          src={recipe.imageUrl}
-          alt={recipe.title}
-          className="w-full h-full object-cover"
-        />
+        <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-full object-cover" />
       </div>
 
       {/* Title and Source */}
@@ -196,11 +169,7 @@ export default function RecipeDetail() {
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-6">
         {recipe.tags.map((tag, index) => (
-          <Badge
-            key={index}
-            variant="secondary"
-            className="bg-gray-100 text-gray-700 hover:bg-gray-200"
-          >
+          <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
             {tag}
           </Badge>
         ))}
@@ -214,7 +183,7 @@ export default function RecipeDetail() {
             {[...Array(5)].map((_, index) => (
               <Star
                 key={index}
-                className={`w-5 h-5 ${index < recipe.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                className={`w-5 h-5 ${index < recipe.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
               />
             ))}
           </div>
@@ -226,9 +195,7 @@ export default function RecipeDetail() {
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <div className="text-sm text-gray-500 mb-1">Last Cooked</div>
           <div className="text-xl font-semibold">
-            {recipe.lastCooked
-              ? format(new Date(recipe.lastCooked), "MMM d, yyyy")
-              : "Never"}
+            {recipe.lastCooked ? format(new Date(recipe.lastCooked), 'MMM d, yyyy') : 'Never'}
           </div>
         </div>
 
@@ -237,16 +204,12 @@ export default function RecipeDetail() {
             <AlertDialogHeader>
               <AlertDialogTitle>Remove Recipe</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to remove this recipe from your
-                collection?
+                Are you sure you want to remove this recipe from your collection?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-700"
-              >
+              <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
                 Remove
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -257,9 +220,7 @@ export default function RecipeDetail() {
       {/* Description */}
       <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
         <h2 className="text-xl font-semibold mb-4">About this Recipe</h2>
-        <p className="text-gray-700 whitespace-pre-wrap">
-          {recipe.description}
-        </p>
+        <p className="text-gray-700 whitespace-pre-wrap">{recipe.description}</p>
       </div>
     </div>
   );
