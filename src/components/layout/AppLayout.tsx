@@ -23,7 +23,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     const fetchTags = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase.from('recipes').select('tags');
+      const { data, error } = await supabase.from('user_recipes').select('tags').eq('user_id', user.id);
 
       if (error) {
         console.error('Error fetching tags:', error);
@@ -31,7 +31,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
       }
 
       // Flatten and get unique tags
-      const allTags = Array.from(new Set(data.flatMap((recipe) => recipe.tags).filter(Boolean)));
+      const allTags = Array.from(new Set(data.flatMap((recipe) => recipe.tags || []).filter(Boolean))).sort();
+
       setAvailableTags(allTags);
     };
 

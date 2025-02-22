@@ -1,7 +1,13 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from './ui/dropdown-menu';
 import { Plus, Search, Filter, BookMarked, User } from 'lucide-react';
 import { UserAvatar } from './UserAvatar';
 import { Link } from 'react-router-dom';
@@ -19,7 +25,7 @@ const RecipeHeader = ({
   onSearch = () => {},
   onAddRecipe = () => {},
   onFilterSelect = () => {},
-  availableTags = ['Quick Meals', 'Vegetarian', 'Desserts', 'Main Course', 'Breakfast'],
+  availableTags = [],
   onAuthClick = () => {},
   isAuthenticated = false,
 }: RecipeHeaderProps) => {
@@ -50,6 +56,10 @@ const RecipeHeader = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => onFilterSelect('')} className="font-medium">
+                All Recipes
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               {availableTags.map((tag) => (
                 <DropdownMenuItem key={tag} onClick={() => onFilterSelect(tag)}>
                   {tag}
