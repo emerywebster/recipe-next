@@ -47,7 +47,7 @@ const defaultRecipes: Recipe[] = [
 const RecipeGrid = ({ recipes = defaultRecipes, onRecipeClick = () => {} }: RecipeGridProps) => {
   const navigate = useNavigate();
   return (
-    <div className="w-full min-h-screen bg-gray-50 p-6">
+    <div className="w-full min-h-screen p-6">
       <div className="max-w-[2520px] mx-auto xl:pl-20 xl:pr-20">
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 md:gap-x-6 md:gap-y-10"
@@ -62,7 +62,7 @@ const RecipeGrid = ({ recipes = defaultRecipes, onRecipeClick = () => {} }: Reci
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="w-full h-[440px]"
+              className="w-full"
             >
               <RecipeCard
                 title={recipe.title}
