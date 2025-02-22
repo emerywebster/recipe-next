@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import RecipeHeader from '../RecipeHeader';
-import { useAuth } from '@/lib/auth';
-import { AuthDialog } from '../auth/AuthDialog';
-import { supabase } from '@/lib/supabase';
-import { NoiseBackground } from '../ui/noise-background';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import RecipeHeader from "../RecipeHeader";
+import { useAuth } from "@/lib/auth";
+import { AuthDialog } from "../auth/AuthDialog";
+import { supabase } from "@/lib/supabase";
+import { NoiseBackground } from "../ui/noise-background";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -14,8 +14,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState<string>("");
   const [availableTags, setAvailableTags] = useState<string[]>([]);
 
   // Fetch all unique tags
@@ -23,15 +23,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
     const fetchTags = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase.from('recipes').select('tags');
+      const { data, error } = await supabase
+        .from("user_recipes")
+        .select("tags")
+        .eq("user_id", user.id);
 
       if (error) {
-        console.error('Error fetching tags:', error);
+        console.error("Error fetching tags:", error);
         return;
       }
 
       // Flatten and get unique tags
-      const allTags = Array.from(new Set(data.flatMap((recipe) => recipe.tags).filter(Boolean)));
+      const allTags = Array.from(
+        new Set(data.flatMap((recipe) => recipe.tags || []).filter(Boolean)),
+      ).sort();
+
       setAvailableTags(allTags);
     };
 
@@ -40,7 +46,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    const searchEvent = new CustomEvent('recipeSearch', {
+    const searchEvent = new CustomEvent("recipeSearch", {
       detail: { term },
     });
     document.dispatchEvent(searchEvent);
@@ -51,13 +57,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
       setIsAuthDialogOpen(true);
       return;
     }
-    const addRecipeEvent = new CustomEvent('addRecipe');
+    const addRecipeEvent = new CustomEvent("addRecipe");
     document.dispatchEvent(addRecipeEvent);
   };
 
   const handleFilterSelect = (filter: string) => {
     setSelectedFilter(filter);
-    const filterEvent = new CustomEvent('recipeFilter', {
+    const filterEvent = new CustomEvent("recipeFilter", {
       detail: { filter },
     });
     document.dispatchEvent(filterEvent);
@@ -84,7 +90,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
           isAuthenticated={!!user}
         />
         <main>{children}</main>
-        <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
+        <AuthDialog
+          open={isAuthDialogOpen}
+          onOpenChange={setIsAuthDialogOpen}
+        />
       </div>
     </div>
   );

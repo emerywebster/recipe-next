@@ -1,10 +1,16 @@
-import React from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
-import { Plus, Search, Filter, BookMarked, User } from 'lucide-react';
-import { UserAvatar } from './UserAvatar';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "./ui/dropdown-menu";
+import { Plus, Search, Filter, BookMarked, User } from "lucide-react";
+import { UserAvatar } from "./UserAvatar";
+import { Link } from "react-router-dom";
 
 interface RecipeHeaderProps {
   onSearch?: (term: string) => void;
@@ -19,7 +25,7 @@ const RecipeHeader = ({
   onSearch = () => {},
   onAddRecipe = () => {},
   onFilterSelect = () => {},
-  availableTags = ['Quick Meals', 'Vegetarian', 'Desserts', 'Main Course', 'Breakfast'],
+  availableTags = [],
   onAuthClick = () => {},
   isAuthenticated = false,
 }: RecipeHeaderProps) => {
@@ -27,7 +33,9 @@ const RecipeHeader = ({
     <header className="w-full h-20 bg-white border-b border-gray-200 px-6 flex items-center justify-between sticky top-0 z-10">
       <Link to="/" className="flex items-center gap-2 mr-8">
         <BookMarked className="h-6 w-6 text-primary" />
-        <span className="text-xl font-semibold hidden sm:inline">Cookmarks</span>
+        <span className="text-xl font-semibold hidden sm:inline">
+          Cookmarks
+        </span>
       </Link>
 
       <div className="flex items-center flex-1 max-w-2xl">
@@ -50,6 +58,13 @@ const RecipeHeader = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem
+                onClick={() => onFilterSelect("")}
+                className="font-medium"
+              >
+                All Recipes
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               {availableTags.map((tag) => (
                 <DropdownMenuItem key={tag} onClick={() => onFilterSelect(tag)}>
                   {tag}
@@ -61,7 +76,10 @@ const RecipeHeader = ({
       </div>
 
       <div className="flex items-center gap-4">
-        <Button onClick={onAddRecipe} className="text-xs sm:text-sm py-1 px-2 ml-3">
+        <Button
+          onClick={onAddRecipe}
+          className="text-xs sm:text-sm py-1 px-2 ml-3"
+        >
           <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
           Add recipe
         </Button>

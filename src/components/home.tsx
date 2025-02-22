@@ -59,7 +59,7 @@ const Home = () => {
       let filtered = [...recipes];
 
       if (filter) {
-        filtered = filtered.filter((recipe) => recipe.tags.includes(filter));
+        filtered = filtered.filter((recipe) => recipe.tags?.includes(filter));
       } else {
         filtered = recipes;
       }
