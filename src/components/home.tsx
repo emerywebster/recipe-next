@@ -171,6 +171,8 @@ const Home = () => {
                 description: recipeData.description,
                 source: recipeData.url ? new URL(recipeData.url).hostname.replace('www.', '') : null,
                 first_submitted_by: user?.id,
+                ingredients: recipeData.ingredients,
+                instructions: recipeData.instructions,
               },
             ])
             .select()

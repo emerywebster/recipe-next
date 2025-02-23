@@ -31,6 +31,8 @@ interface Recipe {
   tags: string[];
   source?: string;
   userRecipeId: string;
+  ingredients?: string[];
+  instructions?: string[];
 }
 
 export default function RecipeDetail() {
@@ -96,6 +98,11 @@ export default function RecipeDetail() {
         return;
       }
 
+      if (!data || !data.recipe) {
+        console.error('No recipe data found');
+        return;
+      }
+
       setRecipe({
         id: data.recipe.id,
         title: data.recipe.title,
@@ -108,6 +115,8 @@ export default function RecipeDetail() {
         lastCooked: data.last_cooked,
         tags: data.tags || [],
         userRecipeId: data.id,
+        ingredients: data.recipe.ingredients || [],
+        instructions: data.recipe.instructions || [],
       });
     };
 
@@ -218,10 +227,40 @@ export default function RecipeDetail() {
       </div>
 
       {/* Description */}
-      <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-        <h2 className="text-xl font-semibold mb-4">About this Recipe</h2>
-        <p className="text-gray-700 whitespace-pre-wrap">{recipe.description}</p>
-      </div>
+      {recipe.description && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">About</h2>
+          <p className="text-gray-700">{recipe.description}</p>
+        </div>
+      )}
+
+      {/* Ingredients */}
+      {recipe.ingredients && recipe.ingredients.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
+          <ul className="list-disc list-inside space-y-2">
+            {recipe.ingredients.map((ingredient, index) => (
+              <li key={index} className="text-gray-700">
+                {ingredient}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Instructions */}
+      {recipe.instructions && recipe.instructions.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
+          <ol className="list-decimal list-inside space-y-4">
+            {recipe.instructions.map((instruction, index) => (
+              <li key={index} className="text-gray-700">
+                {instruction}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }
