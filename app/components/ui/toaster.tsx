@@ -12,12 +12,13 @@ import {
 } from '@/app/components/ui/toast';
 import { useToast } from '@/app/components/ui/use-toast';
 
-interface ToastWithProps extends ToastProps {
+// Use the same type definition as in use-toast.ts
+type ToastWithProps = ToastProps & {
   id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
-}
+};
 
 export function Toaster() {
   const { toasts } = useToast();
