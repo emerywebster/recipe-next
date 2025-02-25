@@ -15,6 +15,9 @@ interface Recipe {
   url?: string;
   description?: string;
   notes?: string;
+  userRecipeId?: string;
+  ingredients?: string[];
+  instructions?: string[];
 }
 
 const Home = () => {
@@ -101,7 +104,9 @@ const Home = () => {
             title,
             image_url,
             description,
-            source
+            source,
+            ingredients,
+            instructions
           )
         `
         )
@@ -109,20 +114,27 @@ const Home = () => {
 
       if (error) throw error;
 
-      const formattedData = (data || []).map((item) => ({
-        id: item.recipe.id,
-        title: item.recipe.title,
-        url: item.recipe.url,
-        imageUrl: item.recipe.image_url,
-        description: item.recipe.description,
-        source: item.recipe.source,
-        rating: item.rating,
-        cookCount: item.cook_count,
-        lastCooked: item.last_cooked,
-        notes: item.notes,
-        tags: item.tags || [],
-        userRecipeId: item.id,
-      }));
+      const formattedData = (data || []).map((item) => {
+        // Use type assertion to help TypeScript
+        const recipe = item.recipe as any;
+
+        return {
+          id: recipe.id,
+          title: recipe.title,
+          url: recipe.url,
+          imageUrl: recipe.image_url,
+          description: recipe.description,
+          source: recipe.source,
+          rating: item.rating,
+          cookCount: item.cook_count,
+          lastCooked: item.last_cooked,
+          notes: item.notes,
+          tags: item.tags || [],
+          userRecipeId: item.id,
+          ingredients: recipe.ingredients || [],
+          instructions: recipe.instructions || [],
+        };
+      });
 
       setRecipes(formattedData);
       setFilteredRecipes(formattedData);
@@ -218,7 +230,9 @@ const Home = () => {
               title,
               image_url,
               description,
-              source
+              source,
+              ingredients,
+              instructions
             )
           `
           )
@@ -227,19 +241,24 @@ const Home = () => {
 
         if (fetchError) throw fetchError;
 
+        // Use type assertion to help TypeScript
+        const completeRecipeData = completeRecipe.recipe as any;
+
         const newRecipe = {
-          id: completeRecipe.recipe.id,
-          title: completeRecipe.recipe.title,
-          url: completeRecipe.recipe.url,
-          imageUrl: completeRecipe.recipe.image_url,
-          description: completeRecipe.recipe.description,
-          source: completeRecipe.recipe.source,
+          id: completeRecipeData.id,
+          title: completeRecipeData.title,
+          url: completeRecipeData.url,
+          imageUrl: completeRecipeData.image_url,
+          description: completeRecipeData.description,
+          source: completeRecipeData.source,
           rating: completeRecipe.rating,
           cookCount: completeRecipe.cook_count,
           lastCooked: completeRecipe.last_cooked,
           notes: completeRecipe.notes,
           tags: completeRecipe.tags || [],
           userRecipeId: completeRecipe.id,
+          ingredients: completeRecipeData.ingredients || [],
+          instructions: completeRecipeData.instructions || [],
         };
 
         setRecipes([newRecipe, ...recipes]);
