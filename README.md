@@ -1,11 +1,71 @@
-# React + TypeScript + Vite
+# Tempo Recipe App (Next.js)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a recipe management application built with Next.js. It allows users to save, categorize, and search for recipes.
 
-Currently, two official plugins are available:
+## Migrated from Vite to Next.js
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This application has been migrated from a Vite-based React application to Next.js. Key changes include:
+
+- Adoption of the Next.js App Router architecture
+- Server-side rendering for improved performance and SEO
+- File-based routing system
+- Environment variable management via Next.js
+- Migration of all UI components to Next.js patterns
+
+## Features
+
+- User authentication via Supabase
+- Add and manage recipes
+- Filter recipes by tags
+- Search functionality
+- Responsive design
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18+)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up environment variables:
+   Copy `.env.example` to `.env.local` and fill in your Supabase credentials.
+
+### Development
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+The application will be available at http://localhost:3000
+
+### Building for Production
+
+```bash
+npm run build
+# or
+yarn build
+```
+
+## Folder Structure
+
+- `/app` - Next.js App Router files and components
+  - `/components` - React components
+  - `/lib` - Utility functions and helpers
+  - `/types` - TypeScript type definitions
+- `/public` - Static assets
 
 ## Expanding the ESLint configuration
 
@@ -19,10 +79,10 @@ export default {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
+    project: ['./tsconfig.json'],
     tsconfigRootDir: __dirname,
   },
-}
+};
 ```
 
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`

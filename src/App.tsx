@@ -38,7 +38,7 @@ function AppRoutes() {
             }
           />
         </Routes>
-        {import.meta.env.VITE_TEMPO === 'true' && useRoutes(routes)}
+        {process.env.NEXT_PUBLIC_TEMPO === 'true' && useRoutes(routes)}
       </AppLayout>
     </Suspense>
   );
