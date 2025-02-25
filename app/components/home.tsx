@@ -22,10 +22,14 @@ interface Recipe {
   instructions?: string[];
 }
 
-const Home = () => {
+interface HomeProps {
+  initialRecipes?: Recipe[];
+}
+
+const Home = ({ initialRecipes = [] }: HomeProps) => {
   const { user } = useAuth();
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>(initialRecipes);
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>(initialRecipes);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
@@ -34,11 +38,11 @@ const Home = () => {
   useEffect(() => {
     if (user) {
       loadRecipes();
-    } else {
-      setRecipes([]);
-      setFilteredRecipes([]);
+    } else if (initialRecipes.length === 0) {
+      // If not authenticated and no initial recipes, load sample recipes
+      loadSampleRecipes();
     }
-  }, [user]);
+  }, [user, initialRecipes]);
 
   // Set up event listeners
   useEffect(() => {
@@ -86,6 +90,41 @@ const Home = () => {
       document.removeEventListener('addRecipe', handleAddRecipe);
     };
   }, [recipes]);
+
+  const loadSampleRecipes = () => {
+    const sampleRecipes = [
+      {
+        id: '1',
+        title: 'Homemade Pizza Margherita',
+        imageUrl: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3',
+        source: 'italianfoodforever.com',
+        rating: 5,
+        cookCount: 12,
+        tags: ['Italian', 'Comfort Food'],
+      },
+      {
+        id: '2',
+        title: 'Fresh Summer Salad',
+        imageUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
+        source: 'loveandlemons.com',
+        rating: 4,
+        cookCount: 8,
+        tags: ['Healthy', 'Quick Meals', 'Vegetarian'],
+      },
+      {
+        id: '3',
+        title: 'Chocolate Chip Cookies',
+        imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e',
+        source: 'sallysbakingaddiction.com',
+        rating: 5,
+        cookCount: 15,
+        tags: ['Desserts', 'Baking'],
+      },
+    ];
+
+    setRecipes(sampleRecipes);
+    setFilteredRecipes(sampleRecipes);
+  };
 
   const loadRecipes = async () => {
     try {

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent } from './ui/card';
+import { OptimizedImage } from './ui/optimized-image';
 
 interface RecipeCardProps {
   title?: string;
@@ -22,7 +23,7 @@ const RecipeCard = ({
       onClick={onClick}
     >
       <div className="relative w-full h-[250px] overflow-hidden rounded-t-lg">
-        <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+        <OptimizedImage src={imageUrl} alt={title} width={500} height={300} className="rounded-t-lg" />
       </div>
 
       <CardContent className="p-4">

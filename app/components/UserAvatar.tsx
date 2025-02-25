@@ -10,6 +10,7 @@ import {
 } from '@/app/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/lib/auth';
+import Link from 'next/link';
 
 export function UserAvatar() {
   const router = useRouter();
@@ -18,6 +19,15 @@ export function UserAvatar() {
   if (!user) return null;
 
   const initials = user.email ? user.email[0].toUpperCase() : 'U';
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -28,9 +38,13 @@ export function UserAvatar() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => router.push('/profile')}>My Profile</DropdownMenuItem>
+        <Link href="/profile" passHref>
+          <DropdownMenuItem className="cursor-pointer">My Profile</DropdownMenuItem>
+        </Link>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+          Log out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

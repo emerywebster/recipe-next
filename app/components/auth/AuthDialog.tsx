@@ -12,9 +12,10 @@ import { toast } from '@/app/components/ui/use-toast';
 interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
+export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,7 +35,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         });
       } else {
         await signIn(email, password);
-        onOpenChange(false);
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          onOpenChange(false);
+        }
       }
     } catch (error) {
       toast({

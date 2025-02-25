@@ -20,6 +20,7 @@ import { ArrowLeft, Edit, ExternalLink, MoreVertical, Star, Trash2 } from 'lucid
 import { format } from 'date-fns';
 import { useAuth } from '@/app/lib/auth';
 import { supabase } from '@/app/lib/supabase';
+import { OptimizedImage } from './ui/optimized-image';
 
 interface Recipe {
   id: string;
@@ -39,12 +40,14 @@ interface Recipe {
 
 interface RecipeDetailProps {
   id: string;
+  initialRecipe?: Recipe;
 }
 
-export default function RecipeDetail({ id }: RecipeDetailProps) {
+export default function RecipeDetail({ id, initialRecipe }: RecipeDetailProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter();
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [recipe, setRecipe] = useState<Recipe | null>(initialRecipe || null);
+  const [isLoading, setIsLoading] = useState(!initialRecipe);
   const { user } = useAuth();
 
   const handleDelete = async () => {
@@ -71,8 +74,13 @@ export default function RecipeDetail({ id }: RecipeDetailProps) {
   };
 
   useEffect(() => {
+    // If we have initialRecipe, no need to fetch
+    if (initialRecipe) return;
+
     const fetchRecipe = async () => {
       if (!id || !user) return;
+
+      setIsLoading(true);
 
       const { data, error } = await supabase
         .from('user_recipes')
@@ -100,13 +108,26 @@ export default function RecipeDetail({ id }: RecipeDetailProps) {
         .eq('user_id', user.id)
         .single();
 
+      setIsLoading(false);
+
       if (error) {
         console.error('Error fetching recipe:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load recipe',
+          variant: 'destructive',
+        });
         return;
       }
 
       if (!data || !data.recipe) {
         console.error('No recipe data found');
+        toast({
+          title: 'Recipe not found',
+          description: 'The requested recipe could not be found',
+          variant: 'destructive',
+        });
+        router.push('/');
         return;
       }
 
@@ -131,10 +152,14 @@ export default function RecipeDetail({ id }: RecipeDetailProps) {
     };
 
     fetchRecipe();
-  }, [id, user]);
+  }, [id, user, initialRecipe]);
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-[60vh]">Loading...</div>;
+  }
 
   if (!recipe) {
-    return <div className="flex justify-center items-center h-[60vh]">Loading...</div>;
+    return <div className="flex justify-center items-center h-[60vh]">Recipe not found</div>;
   }
 
   return (
@@ -148,125 +173,131 @@ export default function RecipeDetail({ id }: RecipeDetailProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => router.push(`/recipe/${id}/edit`)}>
               <Edit className="h-4 w-4 mr-2" />
-              Edit
+              Edit Recipe
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-red-600">
+            <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
               <Trash2 className="h-4 w-4 mr-2" />
-              Remove
+              Remove Recipe
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      {/* Hero Image */}
-      <div className="relative w-full h-[400px] rounded-lg overflow-hidden mb-8">
-        <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-full object-cover" />
-      </div>
-
-      {/* Title and Source */}
-      <div className="mb-6">
-        <h1 className="text-4xl font-bold mb-4">{recipe.title}</h1>
-        {recipe.source && (
-          <a
-            href={recipe.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 flex items-center"
-          >
-            {recipe.source}
-            <ExternalLink className="h-4 w-4 ml-1" />
-          </a>
-        )}
-      </div>
-
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {recipe.tags.map((tag, index) => (
-          <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
-            {tag}
-          </Badge>
-        ))}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="text-sm text-gray-500 mb-1">Your Rating</div>
-          <div className="flex items-center">
-            {[...Array(5)].map((_, index) => (
-              <Star
-                key={index}
-                className={`w-5 h-5 ${index < recipe.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-              />
+      {/* Recipe Header */}
+      <div className="flex flex-col md:flex-row gap-8 mb-12">
+        <div className="w-full md:w-1/3">
+          <OptimizedImage
+            src={recipe.imageUrl}
+            alt={recipe.title}
+            width={500}
+            height={400}
+            className="w-full h-auto rounded-lg object-cover"
+          />
+        </div>
+        <div className="w-full md:w-2/3">
+          <h1 className="text-3xl font-bold mb-2">{recipe.title}</h1>
+          {recipe.source && (
+            <p className="text-muted-foreground mb-4">
+              Source:{' '}
+              {recipe.url ? (
+                <a
+                  href={recipe.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline inline-flex items-center"
+                >
+                  {recipe.source} <ExternalLink className="h-3 w-3 ml-1" />
+                </a>
+              ) : (
+                recipe.source
+              )}
+            </p>
+          )}
+          {recipe.description && <p className="mb-4">{recipe.description}</p>}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {recipe.tags.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
             ))}
           </div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="text-sm text-gray-500 mb-1">Times Cooked</div>
-          <div className="text-xl font-semibold">{recipe.cookCount}</div>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm">
-          <div className="text-sm text-gray-500 mb-1">Last Cooked</div>
-          <div className="text-xl font-semibold">
-            {recipe.lastCooked ? format(new Date(recipe.lastCooked), 'MMM d, yyyy') : 'Never'}
+          <div className="flex items-center gap-6 mt-4">
+            <div className="flex items-center">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-5 w-5 ${i < recipe.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Cooked {recipe.cookCount} {recipe.cookCount === 1 ? 'time' : 'times'}
+            </div>
+            {recipe.lastCooked && (
+              <div className="text-sm text-muted-foreground">
+                Last cooked: {format(new Date(recipe.lastCooked), 'MMM d, yyyy')}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Description */}
-      {recipe.description && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">About</h2>
-          <p className="text-gray-700">{recipe.description}</p>
+      {/* Recipe Content */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="md:col-span-2">
+          {recipe.instructions && recipe.instructions.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
+              <ol className="space-y-4 list-decimal list-inside">
+                {recipe.instructions.map((instruction, index) => (
+                  <li key={index} className="pl-2">
+                    <span className="ml-2">{instruction}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
-      )}
-
-      {/* Ingredients */}
-      {recipe.ingredients && recipe.ingredients.length > 0 && (
-        <div className="mb-8 bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
-          <ul className="list-disc list-inside space-y-2">
-            {recipe.ingredients.map((ingredient, index) => (
-              <li key={index} className="text-gray-700">
-                {ingredient}
-              </li>
-            ))}
-          </ul>
+        <div>
+          {recipe.ingredients && recipe.ingredients.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Ingredients</h2>
+              <ul className="space-y-2">
+                {recipe.ingredients.map((ingredient, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="mr-2">•</span>
+                    {ingredient}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      )}
-
-      {/* Instructions */}
-      {recipe.instructions && recipe.instructions.length > 0 && (
-        <div className="mb-8 bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-semibold mb-4">Instructions</h2>
-          <ol className="list-decimal list-inside space-y-4">
-            {recipe.instructions.map((instruction, index) => (
-              <li key={index} className="text-gray-700">
-                {instruction}
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
+      </div>
 
       {/* Delete Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Recipe</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this recipe from your collection?
+              This will remove the recipe from your collection. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Remove
             </AlertDialogAction>
           </AlertDialogFooter>
