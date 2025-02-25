@@ -1,16 +1,15 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/app/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+} from '@/app/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/lib/auth';
-import Link from 'next/link';
 
 export function UserAvatar() {
   const router = useRouter();
@@ -29,9 +28,7 @@ export function UserAvatar() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem asChild>
-          <Link href="/profile">My Profile</Link>
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push('/profile')}>My Profile</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>
       </DropdownMenuContent>

@@ -1,13 +1,13 @@
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/lib/auth";
+} from './ui/dropdown-menu';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/auth';
 
 export function UserAvatar() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export function UserAvatar() {
 
   if (!user) return null;
 
-  const initials = user.email ? user.email[0].toUpperCase() : "U";
+  const initials = user.email ? user.email[0].toUpperCase() : 'U';
 
   return (
     <DropdownMenu>
@@ -26,9 +26,7 @@ export function UserAvatar() {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => navigate("/profile")}>
-          My Profile
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>
       </DropdownMenuContent>

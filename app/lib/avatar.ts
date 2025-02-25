@@ -1,5 +1,5 @@
 import md5 from 'md5';
-import { supabase } from './supabase';
+import { supabase } from '@/app/lib/supabase';
 
 export function getGravatarUrl(email: string): string {
   const hash = md5(email.toLowerCase().trim());

@@ -1,6 +1,6 @@
-import { useAuth } from "@/lib/auth";
-import { ProfileForm } from "../ProfileForm";
-import { Navigate } from "react-router-dom";
+import { useAuth } from '../../lib/auth';
+import { ProfileForm } from '../ProfileForm';
+import { Navigate } from 'react-router-dom';
 
 export default function Profile() {
   const { user } = useAuth();

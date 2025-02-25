@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { toast } from "./ui/use-toast";
-import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/lib/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Loader2, Upload } from "lucide-react";
-import { getGravatarUrl, uploadAvatar } from "@/lib/avatar";
+import { useState, useEffect } from 'react';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { toast } from './ui/use-toast';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../lib/auth';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Loader2, Upload } from 'lucide-react';
+import { getGravatarUrl, uploadAvatar } from '../lib/avatar';
 
 interface Profile {
   display_name?: string;
@@ -20,15 +20,15 @@ export function ProfileForm() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<Profile>({
-    display_name: user?.user_metadata?.display_name || "",
-    avatar_url: user?.user_metadata?.avatar_url || "",
-    bio: user?.user_metadata?.bio || "",
+    display_name: user?.user_metadata?.display_name || '',
+    avatar_url: user?.user_metadata?.avatar_url || '',
+    bio: user?.user_metadata?.bio || '',
   });
 
   useEffect(() => {
     if (user?.email && !profile.avatar_url) {
       // Check if Gravatar exists
-      fetch(getGravatarUrl(user.email), { method: "HEAD" }).then((response) => {
+      fetch(getGravatarUrl(user.email), { method: 'HEAD' }).then((response) => {
         if (response.ok) {
           setProfile((p) => ({
             ...p,
@@ -52,15 +52,15 @@ export function ProfileForm() {
       if (error) throw error;
 
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated",
+        title: 'Profile updated',
+        description: 'Your profile has been successfully updated',
       });
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error('Error updating profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to update profile",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update profile',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -72,11 +72,11 @@ export function ProfileForm() {
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith('image/')) {
       toast({
-        title: "Invalid file type",
-        description: "Please upload an image file",
-        variant: "destructive",
+        title: 'Invalid file type',
+        description: 'Please upload an image file',
+        variant: 'destructive',
       });
       return;
     }
@@ -84,9 +84,9 @@ export function ProfileForm() {
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "File too large",
-        description: "Please upload an image smaller than 5MB",
-        variant: "destructive",
+        title: 'File too large',
+        description: 'Please upload an image smaller than 5MB',
+        variant: 'destructive',
       });
       return;
     }
@@ -97,22 +97,22 @@ export function ProfileForm() {
       setProfile((p) => ({ ...p, avatar_url: publicUrl }));
 
       toast({
-        title: "Avatar uploaded",
-        description: "Your avatar has been successfully uploaded",
+        title: 'Avatar uploaded',
+        description: 'Your avatar has been successfully uploaded',
       });
     } catch (error) {
-      console.error("Error uploading avatar:", error);
+      console.error('Error uploading avatar:', error);
       toast({
-        title: "Error",
-        description: "Failed to upload avatar",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to upload avatar',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const initials = user?.email ? user.email[0].toUpperCase() : "U";
+  const initials = user?.email ? user.email[0].toUpperCase() : 'U';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -127,24 +127,16 @@ export function ProfileForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => document.getElementById("avatar-upload")?.click()}
+              onClick={() => document.getElementById('avatar-upload')?.click()}
               disabled={loading}
             >
               <Upload className="h-4 w-4 mr-2" />
               Upload Photo
             </Button>
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileUpload}
-            />
+            <input id="avatar-upload" type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
           </div>
           {user?.email && !profile.avatar_url && (
-            <p className="text-sm text-muted-foreground">
-              Using Gravatar if available
-            </p>
+            <p className="text-sm text-muted-foreground">Using Gravatar if available</p>
           )}
         </div>
       </div>
@@ -154,9 +146,7 @@ export function ProfileForm() {
         <Input
           id="display_name"
           value={profile.display_name}
-          onChange={(e) =>
-            setProfile((p) => ({ ...p, display_name: e.target.value }))
-          }
+          onChange={(e) => setProfile((p) => ({ ...p, display_name: e.target.value }))}
         />
       </div>
 
@@ -177,7 +167,7 @@ export function ProfileForm() {
             Saving...
           </>
         ) : (
-          "Save Changes"
+          'Save Changes'
         )}
       </Button>
     </form>

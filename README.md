@@ -67,6 +67,42 @@ yarn build
   - `/types` - TypeScript type definitions
 - `/public` - Static assets
 
+## Migration Notes
+
+### Path Aliases
+
+We use path aliases to simplify imports. The main aliases are:
+
+- `@/app/*` - Points to the app directory
+- `@/app/components/*` - Points to UI components
+- `@/app/lib/*` - Points to utility functions
+
+### Authentication
+
+Authentication is handled via Supabase and implemented using React Context. The `AuthProvider` in `app/lib/auth.tsx` provides authentication state and methods throughout the application.
+
+### Data Fetching
+
+Data fetching is primarily done client-side using the Supabase JavaScript client. For improved performance, consider implementing server components for data fetching in future updates.
+
+### UI Components
+
+We use Shadcn UI components, which are built on top of Radix UI and styled with Tailwind CSS. These components are located in `app/components/ui`.
+
+## Cleanup After Migration
+
+After verifying that the application works correctly with the Next.js structure, you can run the cleanup script to safely remove the old Vite-based code:
+
+```bash
+node scripts/cleanup-migration.js
+```
+
+This script will:
+
+1. Create a backup of the src directory
+2. Check for any remaining references to the src directory
+3. Provide guidance on safely removing the src directory
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:

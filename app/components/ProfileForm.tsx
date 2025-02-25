@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { toast } from './ui/use-toast';
+import { Button } from '@/app/components/ui/button';
+import { Input } from '@/app/components/ui/input';
+import { Label } from '@/app/components/ui/label';
+import { Textarea } from '@/app/components/ui/textarea';
+import { toast } from '@/app/components/ui/use-toast';
 import { supabase } from '@/app/lib/supabase';
 import { useAuth } from '@/app/lib/auth';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/app/components/ui/avatar';
 import { Loader2, Upload } from 'lucide-react';
 import { getGravatarUrl, uploadAvatar } from '@/app/lib/avatar';
 
@@ -39,9 +39,9 @@ export function ProfileForm() {
         }
       });
     }
-  }, [user, profile.avatar_url]);
+  }, [user]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
@@ -148,9 +148,7 @@ export function ProfileForm() {
         <Input
           id="display_name"
           value={profile.display_name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setProfile((p) => ({ ...p, display_name: e.target.value }))
-          }
+          onChange={(e) => setProfile((p) => ({ ...p, display_name: e.target.value }))}
         />
       </div>
 
@@ -159,7 +157,7 @@ export function ProfileForm() {
         <Textarea
           id="bio"
           value={profile.bio}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setProfile((p) => ({ ...p, bio: e.target.value }))}
+          onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))}
           rows={4}
         />
       </div>
