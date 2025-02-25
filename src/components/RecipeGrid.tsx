@@ -7,6 +7,7 @@ interface Recipe {
   id: string;
   title: string;
   imageUrl: string;
+  source?: string;
   rating: number;
   cookCount: number;
   tags: string[];
@@ -22,6 +23,7 @@ const defaultRecipes: Recipe[] = [
     id: '1',
     title: 'Homemade Pizza Margherita',
     imageUrl: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3',
+    source: 'italianfoodforever.com',
     rating: 5,
     cookCount: 12,
     tags: ['Italian', 'Comfort Food'],
@@ -30,6 +32,7 @@ const defaultRecipes: Recipe[] = [
     id: '2',
     title: 'Fresh Summer Salad',
     imageUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
+    source: 'loveandlemons.com',
     rating: 4,
     cookCount: 8,
     tags: ['Healthy', 'Quick Meals', 'Vegetarian'],
@@ -38,6 +41,7 @@ const defaultRecipes: Recipe[] = [
     id: '3',
     title: 'Chocolate Chip Cookies',
     imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e',
+    source: 'sallysbakingaddiction.com',
     rating: 5,
     cookCount: 15,
     tags: ['Desserts', 'Baking'],
@@ -67,9 +71,7 @@ const RecipeGrid = ({ recipes = defaultRecipes, onRecipeClick = () => {} }: Reci
               <RecipeCard
                 title={recipe.title}
                 imageUrl={recipe.imageUrl}
-                rating={recipe.rating}
-                cookCount={recipe.cookCount}
-                tags={recipe.tags}
+                source={recipe.source}
                 onClick={() => navigate(`/recipe/${recipe.id}`)}
               />
             </motion.div>
