@@ -36,3 +36,7 @@ out/
 **/tempobook/storyboards/
 
 core
+
+# Vercel
+.vercel/*
+!.vercel/project.json

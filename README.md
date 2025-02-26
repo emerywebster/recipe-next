@@ -93,6 +93,28 @@ We use Shadcn UI components, which are built on top of Radix UI and styled with 
 
 The migration from Vite to Next.js has been successfully completed. All code has been restructured to follow the Next.js App Router architecture, and the old Vite-based code structure has been removed.
 
+## Deployment
+
+### Vercel Deployment
+
+This application is configured for deployment on Vercel. The configuration includes special handling for Supabase Edge Functions, which use Deno syntax that is incompatible with the Node.js environment used by Vercel for building Next.js applications.
+
+Key deployment files:
+
+- `.vercel/project.json` - Contains Vercel-specific configuration
+- `next.config.js` - Includes webpack configuration to exclude Supabase functions
+- `tsconfig.json` - Excludes Supabase functions from TypeScript checking
+
+When deploying to Vercel, make sure these configuration files are included in your repository.
+
+### Supabase Edge Functions
+
+The application includes Supabase Edge Functions in the `supabase/functions` directory. These functions should be deployed separately using the Supabase CLI:
+
+```bash
+supabase functions deploy parse-recipe
+```
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
