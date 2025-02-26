@@ -13,6 +13,7 @@ import {
 import { Plus, Search, Filter, BookMarked, User } from 'lucide-react';
 import { UserAvatar } from './UserAvatar';
 import Link from 'next/link';
+import { Skeleton } from './ui/skeleton';
 
 interface RecipeHeaderProps {
   onSearch?: (term: string) => void;
@@ -21,6 +22,7 @@ interface RecipeHeaderProps {
   availableTags?: string[];
   onAuthClick?: () => void;
   isAuthenticated?: boolean;
+  isLoading?: boolean;
 }
 
 const RecipeHeader = ({
@@ -30,6 +32,7 @@ const RecipeHeader = ({
   availableTags = [],
   onAuthClick = () => {},
   isAuthenticated = false,
+  isLoading = false,
 }: RecipeHeaderProps) => {
   return (
     <header className="w-full h-20 bg-white border-b border-gray-200 px-6 flex items-center justify-between sticky top-0 z-10">
@@ -77,7 +80,9 @@ const RecipeHeader = ({
           <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
           Add recipe
         </Button>
-        {isAuthenticated ? (
+        {isLoading ? (
+          <Skeleton className="h-8 w-8 rounded-full" />
+        ) : isAuthenticated ? (
           <UserAvatar />
         ) : (
           <Button

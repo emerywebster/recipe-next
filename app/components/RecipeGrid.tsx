@@ -4,6 +4,8 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import RecipeCard from './RecipeCard';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/app/lib/auth';
+import { Skeleton } from '@/app/components/ui/skeleton';
 
 interface Recipe {
   id: string;
@@ -18,40 +20,65 @@ interface Recipe {
 interface RecipeGridProps {
   recipes?: Recipe[];
   onRecipeClick?: (recipe: Recipe) => void;
+  isLoading?: boolean;
 }
 
-const defaultRecipes: Recipe[] = [
-  {
-    id: '1',
-    title: 'Homemade Pizza Margherita',
-    imageUrl: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3',
-    source: 'italianfoodforever.com',
-    rating: 5,
-    cookCount: 12,
-    tags: ['Italian', 'Comfort Food'],
-  },
-  {
-    id: '2',
-    title: 'Fresh Summer Salad',
-    imageUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
-    source: 'loveandlemons.com',
-    rating: 4,
-    cookCount: 8,
-    tags: ['Healthy', 'Quick Meals', 'Vegetarian'],
-  },
-  {
-    id: '3',
-    title: 'Chocolate Chip Cookies',
-    imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e',
-    source: 'sallysbakingaddiction.com',
-    rating: 5,
-    cookCount: 15,
-    tags: ['Desserts', 'Baking'],
-  },
-];
-
-const RecipeGrid = ({ recipes = defaultRecipes, onRecipeClick = () => {} }: RecipeGridProps) => {
+const RecipeGrid = ({ recipes = [], onRecipeClick = () => {}, isLoading = false }: RecipeGridProps) => {
   const router = useRouter();
+  const { user, loading } = useAuth();
+
+  // Show loading state while authentication is being determined
+  if (isLoading || loading) {
+    return (
+      <div className="w-full min-h-screen p-6">
+        <div className="max-w-[2520px] mx-auto xl:pl-20 xl:pr-20">
+          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 md:gap-x-6 md:gap-y-10">
+            {Array(6)
+              .fill(0)
+              .map((_, index) => (
+                <div key={index} className="w-full">
+                  <div className="w-full h-[340px] bg-white rounded-lg overflow-hidden">
+                    <Skeleton className="w-full h-[250px]" />
+                    <div className="p-4 space-y-2">
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If there are no recipes, show a message
+  if (recipes.length === 0) {
+    return (
+      <div className="w-full min-h-screen p-6">
+        <div className="max-w-[2520px] mx-auto xl:pl-20 xl:pr-20">
+          <div className="flex flex-col items-center justify-center py-20">
+            <h3 className="text-2xl font-semibold mb-4">
+              {user ? "You don't have any recipes yet" : 'Sign in to start saving recipes'}
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              {user
+                ? "Click the 'Add Recipe' button to get started"
+                : 'Create an account to save and organize your favorite recipes'}
+            </p>
+            {!user && (
+              <button
+                onClick={() => router.push('/login')}
+                className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen p-6">

@@ -27,22 +27,33 @@ interface HomeProps {
 }
 
 const Home = ({ initialRecipes = [] }: HomeProps) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>(initialRecipes);
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>(initialRecipes);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
+  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Set isClient to true when component mounts
+  useEffect(() => {
+    setIsClient(true);
+    // If we have initial recipes, we're not loading
+    if (initialRecipes.length > 0) {
+      setIsLoading(false);
+    }
+  }, [initialRecipes]);
 
   // Load recipes when user changes
   useEffect(() => {
-    if (user) {
+    if (user && isClient) {
       loadRecipes();
-    } else if (initialRecipes.length === 0) {
-      // If not authenticated and no initial recipes, load sample recipes
-      loadSampleRecipes();
+    } else if (!loading && isClient) {
+      // If auth is done loading and we're on client, we can stop showing loading state
+      setIsLoading(false);
     }
-  }, [user, initialRecipes]);
+  }, [user, loading, isClient]);
 
   // Set up event listeners
   useEffect(() => {
@@ -91,42 +102,8 @@ const Home = ({ initialRecipes = [] }: HomeProps) => {
     };
   }, [recipes]);
 
-  const loadSampleRecipes = () => {
-    const sampleRecipes = [
-      {
-        id: '1',
-        title: 'Homemade Pizza Margherita',
-        imageUrl: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3',
-        source: 'italianfoodforever.com',
-        rating: 5,
-        cookCount: 12,
-        tags: ['Italian', 'Comfort Food'],
-      },
-      {
-        id: '2',
-        title: 'Fresh Summer Salad',
-        imageUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
-        source: 'loveandlemons.com',
-        rating: 4,
-        cookCount: 8,
-        tags: ['Healthy', 'Quick Meals', 'Vegetarian'],
-      },
-      {
-        id: '3',
-        title: 'Chocolate Chip Cookies',
-        imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e',
-        source: 'sallysbakingaddiction.com',
-        rating: 5,
-        cookCount: 15,
-        tags: ['Desserts', 'Baking'],
-      },
-    ];
-
-    setRecipes(sampleRecipes);
-    setFilteredRecipes(sampleRecipes);
-  };
-
   const loadRecipes = async () => {
+    setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('user_recipes')
@@ -186,6 +163,8 @@ const Home = ({ initialRecipes = [] }: HomeProps) => {
         description: 'Failed to load recipes',
         variant: 'destructive',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -337,7 +316,11 @@ const Home = ({ initialRecipes = [] }: HomeProps) => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <RecipeGrid recipes={filteredRecipes} onRecipeClick={handleRecipeClick} />
+      <RecipeGrid
+        recipes={filteredRecipes}
+        onRecipeClick={handleRecipeClick}
+        isLoading={isLoading || loading || !isClient}
+      />
       <RecipeDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}

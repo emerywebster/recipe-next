@@ -14,16 +14,22 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
-  const { user, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  // Set isClient to true when component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Fetch all unique tags
   useEffect(() => {
     const fetchTags = async () => {
-      if (!user) return;
+      if (!user || !isClient) return;
 
       const { data, error } = await supabase.from('user_recipes').select('tags').eq('user_id', user.id);
 
@@ -39,7 +45,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     };
 
     fetchTags();
-  }, [user]);
+  }, [user, isClient]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -85,6 +91,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           availableTags={availableTags}
           onAuthClick={handleAuthClick}
           isAuthenticated={!!user}
+          isLoading={loading || !isClient}
         />
         <main>{children}</main>
         <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />

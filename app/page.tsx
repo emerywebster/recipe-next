@@ -24,36 +24,8 @@ async function getRecipes() {
     const hasAuthCookie = allCookies.some((cookie) => cookie.name.includes('sb-') && cookie.value);
 
     if (!hasAuthCookie) {
-      // Return sample data for unauthenticated users
-      return [
-        {
-          id: '1',
-          title: 'Homemade Pizza Margherita',
-          imageUrl: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3',
-          source: 'italianfoodforever.com',
-          rating: 5,
-          cookCount: 12,
-          tags: ['Italian', 'Comfort Food'],
-        },
-        {
-          id: '2',
-          title: 'Fresh Summer Salad',
-          imageUrl: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',
-          source: 'loveandlemons.com',
-          rating: 4,
-          cookCount: 8,
-          tags: ['Healthy', 'Quick Meals', 'Vegetarian'],
-        },
-        {
-          id: '3',
-          title: 'Chocolate Chip Cookies',
-          imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e',
-          source: 'sallysbakingaddiction.com',
-          rating: 5,
-          cookCount: 15,
-          tags: ['Desserts', 'Baking'],
-        },
-      ];
+      // Return empty array for unauthenticated users
+      return [];
     }
 
     // For authenticated users, fetch their actual recipes
