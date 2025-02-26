@@ -89,19 +89,9 @@ Data fetching is primarily done client-side using the Supabase JavaScript client
 
 We use Shadcn UI components, which are built on top of Radix UI and styled with Tailwind CSS. These components are located in `app/components/ui`.
 
-## Cleanup After Migration
+## Migration Status
 
-After verifying that the application works correctly with the Next.js structure, you can run the cleanup script to safely remove the old Vite-based code:
-
-```bash
-node scripts/cleanup-migration.js
-```
-
-This script will:
-
-1. Create a backup of the src directory
-2. Check for any remaining references to the src directory
-3. Provide guidance on safely removing the src directory
+The migration from Vite to Next.js has been successfully completed. All code has been restructured to follow the Next.js App Router architecture, and the old Vite-based code structure has been removed.
 
 ## Expanding the ESLint configuration
 
